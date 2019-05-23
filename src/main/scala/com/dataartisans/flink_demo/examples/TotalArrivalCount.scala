@@ -47,8 +47,8 @@ object TotalArrivalCount {
     val servingSpeedFactor = 600f
 
     // Elasticsearch parameters
-    val writeToElasticsearch = false // set to true to write results to Elasticsearch
-    val elasticsearchHost = "" // look-up hostname in Elasticsearch log output
+    val writeToElasticsearch = true // set to true to write results to Elasticsearch
+    val elasticsearchHost = "127.0.0.1" // look-up hostname in Elasticsearch log output
     val elasticsearchPort = 9300
 
 
@@ -57,9 +57,12 @@ object TotalArrivalCount {
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
 
     // Define the data source
+    // Stream 里是 TaxiRide
     val rides: DataStream[TaxiRide] = env.addSource(new TaxiRideSource(
       data, maxServingDelay, servingSpeedFactor))
 
+    // 去掉起点数据 和 终点不在NYC范围内的数据，只保留终点数据（在NYC内）
+    // Stream 里面是 TaxiRide
     val cleansedRides = rides
       // filter for trip end events
       .filter( !_.isStart )
@@ -67,15 +70,20 @@ object TotalArrivalCount {
       .filter( r => NycGeoUtils.isInNYC(r.location) )
 
     // map location coordinates to cell Id, timestamp, and passenger count
+    // Stream 里面是 tuple(cell Id, timestamp, passenger count)
     val cellIds: DataStream[(Int, Long, Short)] = cleansedRides
       .map { r =>
         ( NycGeoUtils.mapToGridCell(r.location), r.time.getMillis, r.passengerCnt )
       }
 
+    // Stream 里面是 tuple(CellID, 最大的Timestamp, passenger total)
     val passengerCnts: DataStream[(Int, Long, Int)] = cellIds
       // key stream by cell Id
+      // 按照 CellID 分组
       .keyBy(_._1)
       // sum passengers per cell Id and update time
+      // 取最大的 Timestamp
+      // 累加每个 Cell 的 passenger count
       .fold((0, 0L, 0), (s: (Int, Long, Int), r: (Int, Long, Short)) =>
         { (r._1, s._2.max(r._2), s._3 + r._3) } )
 

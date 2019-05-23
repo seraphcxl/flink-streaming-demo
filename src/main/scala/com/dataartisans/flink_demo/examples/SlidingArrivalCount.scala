@@ -78,16 +78,18 @@ object SlidingArrivalCount {
     val cellIds: DataStream[(Int, Short)] = cleansedRides
       .map( r => ( NycGeoUtils.mapToGridCell(r.location), r.passengerCnt ) )
 
+    // Stream 里面是 tuple(CellID, 窗口结束的Timestamp, passenger total)
     val passengerCnts: DataStream[(Int, Long, Int)] = cellIds
       // key stream by cell Id
       .keyBy(_._1)
       // define sliding window on keyed streams
+      // 定义滑动窗口（窗口长度15mins，每5mins生成一个）
       .timeWindow(Time.minutes(countWindowLength), Time.minutes(countWindowFrequency))
       // count events in window
       .apply { (
-                 cell: Int,
+                 cell: Int,  // 这个Cell是keyBy来的
                  window: TimeWindow,
-                 events: Iterable[(Int, Short)],
+                 events: Iterable[(Int, Short)],  // event 是 tuple（CellID，passenger count）
                  out: Collector[(Int, Long, Int)]) =>
         out.collect( ( cell, window.getEnd, events.map( _._2 ).sum ) )
       }
