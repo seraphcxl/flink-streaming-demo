@@ -27,12 +27,12 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<slf4j.version>1.7.12</slf4j.version>
+		<slf4j.version>1.7.26</slf4j.version>
 		<flink.version>0.10.0</flink.version>
 	</properties>
 
 	<dependencies>
-		
+
 		<dependency>
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-streaming-java</artifactId>
@@ -51,18 +51,35 @@
 			<version>${flink.version}</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.elasticsearch/elasticsearch -->
 		<dependency>
 			<groupId>org.elasticsearch</groupId>
 			<artifactId>elasticsearch</artifactId>
-			<version>1.7.3</version>
-			<scope>compile</scope>
+			<version>6.7.0</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.elasticsearch.client/transport -->
+		<dependency>
+			<groupId>org.elasticsearch.client</groupId>
+			<artifactId>transport</artifactId>
+			<version>6.7.0</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/io.netty/netty-all -->
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-all</artifactId>
+			<version>4.1.36.Final</version>
+		</dependency>
+
+
+		<!-- https://mvnrepository.com/artifact/joda-time/joda-time -->
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
-			<version>2.7</version>
+			<version>2.10.2</version>
 		</dependency>
+
 
 	</dependencies>
 

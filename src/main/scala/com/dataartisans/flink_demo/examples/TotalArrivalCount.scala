@@ -41,13 +41,15 @@ object TotalArrivalCount {
 
   def main(args: Array[String]) {
 
+    System.setProperty("es.set.netty.runtime.available.processors", "false")
+
     // input parameters
     val data = "./data/nycTaxiData.gz"
     val maxServingDelay = 60
     val servingSpeedFactor = 600f
 
     // Elasticsearch parameters
-    val writeToElasticsearch = true // set to true to write results to Elasticsearch
+    val writeToElasticsearch = false // set to true to write results to Elasticsearch
     val elasticsearchHost = "127.0.0.1" // look-up hostname in Elasticsearch log output
     val elasticsearchPort = 9300
 
@@ -109,7 +111,7 @@ object TotalArrivalCount {
     extends ElasticsearchUpsertSink[(Int, Long, GeoPoint, Int)](
       host,
       port,
-      "elasticsearch",
+      "elasticsearch_xiaoliangchen",
       "nyc-idx",
       "popular-locations") {
 

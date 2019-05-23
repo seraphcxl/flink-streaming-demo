@@ -16,6 +16,7 @@
 
 package com.dataartisans.flink_demo.sinks
 
+import java.net.InetAddress
 import java.util
 
 import org.apache.flink.configuration.Configuration
@@ -23,8 +24,10 @@ import org.apache.flink.streaming.api.functions.sink.RichSinkFunction
 import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.action.update.UpdateRequest
 import org.elasticsearch.client.transport.TransportClient
-import org.elasticsearch.common.settings.ImmutableSettings
-import org.elasticsearch.common.transport.InetSocketTransportAddress
+import org.elasticsearch.common.settings.Settings
+import org.elasticsearch.common.transport.TransportAddress
+import org.elasticsearch.transport.client.PreBuiltTransportClient
+
 
 import scala.collection.JavaConversions._
 
@@ -53,15 +56,18 @@ abstract class ElasticsearchUpsertSink[T](host: String, port: Int, cluster: Stri
   @throws[Exception]
   override def open(parameters: Configuration) {
 
-    val config = new util.HashMap[String, String]
-    config.put("bulk.flush.max.actions", "1")
-    config.put("cluster.name", cluster)
+//    val config = new util.HashMap[String, String]
+//    config.put("bulk.flush.max.actions", "1")
+//    config.put("cluster.name", cluster)
 
-    val settings = ImmutableSettings.settingsBuilder()
-      .put(config)
+    val settings = Settings.builder().put("cluster.name", cluster)
+//      .put(config)
       .build()
-    client = new TransportClient(settings)
-      .addTransportAddress(new InetSocketTransportAddress(host, port))
+    client = new PreBuiltTransportClient(settings)
+      .addTransportAddress(new TransportAddress(InetAddress.getByName(host), port));
+
+//    client = new PreBuiltTransportClient(settings)
+//      .addTransportAddress(new InetSocketTransportAddress(host, port))
   }
 
   @throws[Exception]
